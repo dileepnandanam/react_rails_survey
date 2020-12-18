@@ -24,6 +24,7 @@ class Textarea extends React.Component {
         </label>
         <br />
         <textarea type="textarea" name="textarea" onChange={this.onChange}/>
+        {this.state.errors}
       </div>
     )
   }
@@ -43,6 +44,7 @@ class TextField extends Textarea {
         </label>
         <br />
         <input type="text_field" name="text_field" onChange={this.onChange}/>
+        {this.state.errors}
       </div>
     )
   }
@@ -85,6 +87,7 @@ class Checkbox extends React.Component {
         {this.state.name}
         <br />
         {cboxes}
+        {this.state.errors}
       </div>
     )
 
@@ -99,6 +102,7 @@ class Survey extends React.Component {
     super(props)
     this.state = {questions: props.questions}
     this.update = this.update.bind(this)
+    this.onClick = this.onClick.bind(this)
   }
 
   update(data) {
@@ -110,6 +114,54 @@ class Survey extends React.Component {
     var state = this.state
     state.questions[position] = data
     this.setState(state)
+  }
+
+  onClick(e) {
+    e.preventDefault()
+    var data = {response: {answers_attributes: {
+
+    }}}
+
+    this.state.questions.forEach(function(q, i) {
+      if(q.answertype == 'checkbox') {
+        data.response.answers_attributes[i] = {
+          question_id: q.id,
+          choices_attributes: q.options.filter(option => (option.checked == true)).map(function(option) {
+            return({option_id: option.id})
+          })
+        } 
+      }
+      else if(q.answertype == 'textarea') {
+        data.response.answers_attributes[i] = {
+          question_id: q.id,
+          textarea: q.textarea
+        }
+      }
+      else if(q.answertype == 'text_field') {
+        data.response.answers_attributes[i] = {
+          question_id: q.id,
+          text_field: q.text_field
+        }
+      }
+    })
+    
+    const that = this
+    fetch('/responses', {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    }).then(res => (res.json()))
+    .then(function(res) {
+      if(res.res == 'ok') {
+        alert('success')
+      }
+      else {
+        that.setState({questions: res})
+      }
+    })
+
   }
 
   render() {
@@ -127,6 +179,7 @@ class Survey extends React.Component {
       <div className="survey">
         <h1>Give Details</h1>
         {questions}
+        <button type="submit" onClick={this.onClick} >Submit</button>
       </div>
     )
 
@@ -134,7 +187,7 @@ class Survey extends React.Component {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  fetch('/surveys/1').then(res => (res.json()))
+  fetch('/responses/new').then(res => (res.json()))
   .then(function(res) {
     ReactDOM.render(
       <Survey questions={res} />,
