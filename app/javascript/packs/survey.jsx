@@ -23,7 +23,7 @@ class Textarea extends React.Component {
           {this.state.name}
         </label>
         <br />
-        <textarea type="textarea" name="textarea" onChange={this.onChange}/>
+        <textarea type="textarea" name="textarea" value={this.state.textarea} onChange={this.onChange}/>
         {this.state.errors}
       </div>
     )
@@ -43,7 +43,7 @@ class TextField extends Textarea {
           {this.state.name}
         </label>
         <br />
-        <input type="text_field" name="text_field" onChange={this.onChange}/>
+        <input type="text_field" name="text_field" value={this.state.textarea} onChange={this.onChange}/>
         {this.state.errors}
       </div>
     )
@@ -73,11 +73,11 @@ class Checkbox extends React.Component {
 
   render() {
     const that = this
-    const cboxes = this.state.options.map(function(o) {
+    const cboxes = this.state.options.map(function(o, i) {
       return(
-        <div className="option">
+        <div className="option" key={i}>
           <input type="checkbox" id={o.id} onChange={that.onChange} checked={o.checked}/>
-          <label for={o.id}>{o.name}</label>
+          <label htmlFor={o.id}>{o.name}</label>
         </div>
       )
     })
@@ -168,11 +168,11 @@ class Survey extends React.Component {
     const that = this
     const questions = this.state.questions.map(function(q, i) {
       if(q.answertype == 'checkbox')
-        return(<Checkbox {...q} update={that.update}/>)
+        return(<Checkbox {...q} update={that.update} key={q.key}/>)
       else if(q.answertype == 'textarea')
-        return(<Textarea {...q} update={that.update}/>)
+        return(<Textarea {...q} update={that.update} key={q.key}/>)
       else if(q.answertype == 'text_field')
-        return(<TextField {...q} update={that.update}/>)
+        return(<TextField {...q} update={that.update} key={q.key}/>)
     })
 
     return(

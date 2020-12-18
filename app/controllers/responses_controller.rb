@@ -29,16 +29,26 @@ class ResponsesController < ApplicationController
           answertype: question.answertype,
           options: question.options.map {|o| {id: o.id, name: o.name, checked: answer_for(response, question, o)}},
           name: question.name,
-          errors: errors_for(response, question, with_errors)
+          errors: errors_for(response, question, with_errors),
+          key: question.to_s
+        }
+      elsif question.answertype == 'text_field'
+        {
+          id: question.id,
+          answertype: question.answertype,
+          text_field: answer_for(response, question, nil),
+          name: question.name,
+          errors: errors_for(response, question, with_errors),
+          key: question.to_s
         }
       else
         {
           id: question.id,
           answertype: question.answertype,
-          text_field: answer_for(response, question, nil),
           textarea: answer_for(response, question, nil),
           name: question.name,
-          errors: errors_for(response, question, with_errors)
+          errors: errors_for(response, question, with_errors),
+          key: question.to_s
         }
       end
     end
