@@ -27,7 +27,9 @@ class ResponsesController < ApplicationController
         {
           id: question.id,
           answertype: question.answertype,
-          options: question.options.map {|o| {id: o.id, name: o.name, checked: answer_for(response, question, o)}},
+          options: question.options.map {|o| 
+            {id: o.id, name: o.name, checked: answer_for(response, question, o)}
+          },
           name: question.name,
           errors: errors_for(response, question, with_errors),
           key: question.to_s
@@ -56,15 +58,19 @@ class ResponsesController < ApplicationController
 
   def answer_for(response, question, option)
     if question.answertype == 'checkbox'
-      answer = response.answers.find{|answer| question.id == answer.question_id}
+      answer = answer_object(response, question)
       if answer.present?
         answer.choices.map(&:option_id).include?(option.id)
       end
     elsif question.answertype == 'text_field'
-      response.answers.find{|answer| question.id == answer.question_id}.try(:text_field)
+      answer_object(response, question).try(:text_field) || ''
     elsif question.answertype == 'textarea'
-      response.answers.find{|answer| question.id == answer.question_id}.try(:textarea)
+      answer_object(response, question).try(:textarea) || ''
     end
+  end
+
+  def answer_object(response, question)
+    response.answers.find{|answer| question.id == answer.question_id}
   end
 
   def errors_for(response, question, with_errors)

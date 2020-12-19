@@ -7,7 +7,7 @@ class FieldPresenceValidator < ActiveModel::Validator
     elsif record.question.answertype == 'text_field'
       record.errors[:base] << 'can\'t be blank' if record.text_field.blank?
     else
-      record.errors[:base] << 'chose atleast one' if record.choices.length == 0
+      record.errors[:base] << 'choose atleast one' if record.choices.length == 0
     end
   end
 end
